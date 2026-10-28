@@ -8,6 +8,9 @@
 - Historical accepted decision 0001 is preserved unchanged.
 - Engineering tickets: [parser](https://github.com/mmodiG8/s01e03-what-it-shows/issues/1)
   and [booking-v3 hint](https://github.com/mmodiG8/s01e03-what-it-shows/issues/2).
+- The desk's 5 October update closes parser as **fixed/completed** and hint as
+  **won't fix/not planned** because booking-v3 was retired. The signed review
+  records these separate outcomes without claiming a production retest.
 
 The original export had no app/build configuration. The added SvelteKit/static
 setup builds the actual SVX pages and their imported Svelte components.

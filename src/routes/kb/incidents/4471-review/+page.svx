@@ -2,7 +2,7 @@
 layout: runbook
 title: '#4471 review: two causes behind one date ticket'
 owner: mmodiG8
-status: reviewed
+status: closed
 reviewed: '2026-10-28'
 signature: 'v1.eyJzdWIiOiI0NDE4IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyMTQ1NDEsImV4cCI6MTc5MzMwMDk0MX0.6i0P5K-Xd4-o0heoy9hnT_UXvEHG5EHSy7cTdKCOTXo'
 ---
@@ -24,8 +24,23 @@ Counts below are computed from the source reports, deduplicated by report ID.
 <Callout>
 Keep parser and booking-form hint failures in separate engineering tickets.
 A shared symptom or matching subject is not proof of a shared cause.
-The desk can keep receiving and merging reports after this snapshot.
+Closed does not mean every cause was fixed: see the engineering dispositions below.
 </Callout>
+
+## Engineering update: 5 October
+
+The [course challenge page](https://hq.mega.dev/challenges/what-it-shows)
+now reports **#4471 closed on 5 October**:
+
+| cause | engineering disposition | reason | our ticket closure |
+| --- | --- | --- | --- |
+| parser | **FIXED** | `fix(dates): parse dd/mm for eu locales` | [completed](https://github.com/mmodiG8/s01e03-what-it-shows/issues/1) |
+| hint | **WON'T FIX** | booking-v3 form retired | [not planned](https://github.com/mmodiG8/s01e03-what-it-shows/issues/2) |
+
+These are engineering's reported outcomes, not production tests run by this
+review. The parser was fixed; the hint was not fixed, because its form was
+retired. Preserve that distinction in ticket state, closure comments and this
+page. Historical report counts remain the deduplicated export counts.
 
 ## What each ticket covers
 
@@ -44,10 +59,12 @@ the result is 4 July, not 7 April. The product runtime is not in this export,
 so this is a code-documented reproduction to verify in the product, not a test
 we ran against production.
 
-Fix the shared parsing contract to use the tenant's format, or transmit an
-unambiguous date representation. Cover app/email paths and `booking-v2` form
-paths. A `booking-v3` tenant's app report is still parser, not automatically hint.
-Retain the one-day reports below as follow-up within this provisional grouping.
+Engineering now reports the parser fix delivered, as shown above. The exported
+model's required behavior is tenant-aware parsing or an unambiguous date
+representation, covering app/email and `booking-v2` form paths.
+A `booking-v3` tenant's app report is still parser, not automatically hint.
+Retain the one-day reports below as contrary evidence within this provisional
+grouping; the closure notice does not itself reproduce or explain them.
 
 ### Hint: booking-v3 instructs month first but reads tenant order
 
@@ -56,9 +73,10 @@ interprets what people enter in the tenant's date order. Someone following
 that hint for 7 April enters `04/07/2026`; a day-first form reads 4 July.
 Only the form channel on that booking version belongs to this cause.
 
-Affected form tenants are Alder Physio, Copper Studio and Pale Harbour.
-Fix the hint and form input interpretation together. Correcting only the
-shared parser does not resolve a misleading form instruction.
+Affected form tenants were Alder Physio, Copper Studio and Pale Harbour.
+Engineering retired booking-v3 rather than fixing its hint. If this form is
+reintroduced, its hint and input interpretation must agree. Correcting only
+the shared parser does not resolve a misleading form instruction.
 
 ## Audit the count and the timeline
 
@@ -73,6 +91,8 @@ Use [decision 0002](/kb/decisions/0002-dedupe-by-cause) and the updated
 and booking-form version, then compare the channel and cause. Subject
 normalization can find candidate tickets but cannot authorize a merge.
 Keep uncertain reports separate for investigation rather than forcing a match.
+Keep the two closed tickets and their different resolution reasons as history;
+do not describe the retired form as fixed.
 
 When new reports arrive, deduplicate IDs again, recompute both cause counts,
 and record the snapshot time. Inspect the received timeline separately from
