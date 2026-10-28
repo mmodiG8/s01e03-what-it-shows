@@ -1,0 +1,42 @@
+---
+layout: runbook
+title: '0002: Merge reports only after verifying the cause'
+owner: mmodiG8
+status: accepted
+reviewed: '2026-10-28'
+signature: 'v1.eyJzdWIiOiI0NDE4IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyMTQ1NDEsImV4cCI6MTc5MzMwMDk0MX0.6i0P5K-Xd4-o0heoy9hnT_UXvEHG5EHSy7cTdKCOTXo'
+---
+
+<script>
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+</script>
+
+**Date:** 29 October 2026. **Decider:** mmodiG8.
+**Supersedes:** [decision 0001](/kb/decisions/0001-dedupe-by-subject).
+
+## Context
+
+The review of [#4471](/kb/incidents/4471-review) found different causes hidden
+inside one known ticket. Matching subjects neither establish the same failure
+nor exclude a different one. The former accepted record remains unchanged as
+history, not as the current merge policy.
+
+## Decision
+
+Read each report and verify its cause before merging. For the date failures,
+look up the tenant locale and booking-form version and inspect the channel
+using `causeOf` and `sameCause` in `src/lib/kb/causes.ts`.
+Browser intake tags and normalized subjects are hints, not authority.
+Matching subjects may point to different tickets, and different subjects may
+describe the same cause. Unknown tenant or insufficient evidence means no
+automatic merge; investigate first.
+
+## Consequences
+
+Triage takes more reading but preserves separate engineering fixes and honest
+counts. Deduplicate exports by report ID, not by subject or raw row count.
+Re-evaluate open known tickets as reports arrive. Treat classifier results
+as the exported model, and retain contrary body evidence for investigation
+rather than claiming a cause the data does not establish.
+
+<RenderStamp {signature} />

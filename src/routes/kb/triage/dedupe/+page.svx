@@ -1,0 +1,41 @@
+---
+layout: runbook
+title: 'Triage: duplicate reports'
+owner: support desk
+status: accepted
+reviewed: '2026-10-28'
+---
+
+<script>
+  import DedupeExplorer from '#lib/kb/DedupeExplorer.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+</script>
+
+A busy morning brings hundreds of reports about the same thing. We keep one ticket per issue
+and merge every duplicate into it, so engineering sees one thread with a count.
+
+## The rule
+
+A report is a duplicate only when the evidence supports the **same cause**
+([decision 0002](/kb/decisions/0002-dedupe-by-cause), superseding
+[decision 0001](/kb/decisions/0001-dedupe-by-subject)):
+
+1. Read the body and look up the tenant locale and booking-form version.
+2. Compare the channel and cause with candidate tickets; use `causeOf` and `sameCause` for these date failures.
+3. Merge only with a verified same-cause ticket. Otherwise open a separate ticket or investigate if the cause is uncertain.
+4. Count unique report IDs and recompute totals when new exports arrive.
+
+<Callout>
+Subjects and browser intake tags help find candidates; neither proves a shared cause.
+The same subject can hide different bugs. A different subject can describe the same bug.
+</Callout>
+
+## Try it
+
+<DedupeExplorer />
+
+## When you are unsure
+
+Do not merge yet. Check the tenant directory and report body, then ask for missing
+reproduction evidence. An unknown tenant is not evidence that two reports share a cause.
+See the [#4471 review](/kb/incidents/4471-review) for the split and its limits.

@@ -1,0 +1,93 @@
+---
+layout: runbook
+title: '#4471 review: two causes behind one date ticket'
+owner: mmodiG8
+status: reviewed
+reviewed: '2026-10-28'
+signature: 'v1.eyJzdWIiOiI0NDE4IiwiYXVkIjoiY2hhbGxlbmdlOndoYXQtaXQtc2hvd3MiLCJpYXQiOjE3OTMyMTQ1NDEsImV4cCI6MTc5MzMwMDk0MX0.6i0P5K-Xd4-o0heoy9hnT_UXvEHG5EHSy7cTdKCOTXo'
+---
+
+<script>
+  import CauseTable from '#lib/kb/CauseTable.svelte';
+  import QueueTimeline from '#lib/kb/QueueTimeline.svelte';
+  import ReportAudit from '#lib/kb/ReportAudit.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import ticketLinks from '#lib/data/engineering-tickets.json';
+</script>
+
+The original [incident page](/kb/incidents/4471) calls this one known parser bug.
+The exported reports and tenant directory show two independently fixable causes.
+This review covers the 4 October export, not an assurance about the current queue.
+Counts below are computed from the source reports, deduplicated by report ID.
+
+<Callout>
+Keep parser and booking-form hint failures in separate engineering tickets.
+A shared symptom or matching subject is not proof of a shared cause.
+The desk can keep receiving and merging reports after this snapshot.
+</Callout>
+
+## What each ticket covers
+
+<CauseTable ticket={4471} {ticketLinks} />
+
+### Parser: tenant day-first dates read month first
+
+The shared parser treats date input as month first even when the tenant locale
+is day first. For example, Harbour Dental (`en-GB`, `booking-v2`) reported an
+April reminder sent in July in `R-41200`. This is not determined by the
+reporter's browser locale or by `meta.intakeTag`.
+
+Reproduce the represented failure by passing an unambiguous intended tenant date,
+7 April 2026 entered as `07/04/2026`, through the month-first shared parser:
+the result is 4 July, not 7 April. The product runtime is not in this export,
+so this is a code-documented reproduction to verify in the product, not a test
+we ran against production.
+
+Fix the shared parsing contract to use the tenant's format, or transmit an
+unambiguous date representation. Cover app/email paths and `booking-v2` form
+paths. A `booking-v3` tenant's app report is still parser, not automatically hint.
+Retain the one-day reports below as follow-up within this provisional grouping.
+
+### Hint: booking-v3 instructs month first but reads tenant order
+
+For day-first tenants using `booking-v3`, the form shows `MM/DD/YYYY`, but
+interprets what people enter in the tenant's date order. Someone following
+that hint for 7 April enters `04/07/2026`; a day-first form reads 4 July.
+Only the form channel on that booking version belongs to this cause.
+
+Affected form tenants are Alder Physio, Copper Studio and Pale Harbour.
+Fix the hint and form input interpretation together. Correcting only the
+shared parser does not resolve a misleading form instruction.
+
+## Audit the count and the timeline
+
+<ReportAudit />
+
+<QueueTimeline ticket={4471} />
+
+## What the desk should do now
+
+Use [decision 0002](/kb/decisions/0002-dedupe-by-cause) and the updated
+[triage runbook](/kb/triage/dedupe). Read the body, look up the tenant locale
+and booking-form version, then compare the channel and cause. Subject
+normalization can find candidate tickets but cannot authorize a merge.
+Keep uncertain reports separate for investigation rather than forcing a match.
+
+When new reports arrive, deduplicate IDs again, recompute both cause counts,
+and record the snapshot time. Inspect the received timeline separately from
+the merged timeline. Reopen or split the known ticket when a new cause appears;
+do not continue accumulating unrelated failures beneath the queued parser fix.
+If the one-day investigation establishes another cause, split those IDs and
+revise the counts explicitly rather than counting them in two tickets.
+
+## Source and verification boundary
+
+Evidence comes from `src/lib/data/reports-4471.json`, the tenant JSON files,
+`desk-notes.json`, and the logic in `causes.ts` and `locales.ts`.
+The original intake tags are preserved for audit. The original accepted
+decision 0001 is preserved unchanged; decision 0002 supersedes its merge rule.
+This build renders the imported components, including their computed counts
+and signature-derived desk reference, rather than a handwritten HTML summary.
+
+<RenderStamp {signature} />
